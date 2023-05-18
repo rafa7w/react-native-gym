@@ -18,7 +18,7 @@ export function Routes() {
     // para garantir que uma tela branca não apareça entre as transições de tela, envolvemos com uma box
     <Box flex={1} bg='gray.700'>
       <NavigationContainer theme={theme}>
-        <AuthRoutes />
+        {user.id ? <AuthRoutes /> : <AppRoutes />}
       </NavigationContainer>
     </Box>
   )
