@@ -28,8 +28,8 @@ export function SignIn() {
     navigation.navigate('signUp')
   }
 
-  function handleSignIn({email, password}:FormData) {
-    signIn(email, password)
+  async function handleSignIn({email, password}:FormData) {
+    await signIn(email, password)
   }
 
   return (
@@ -55,18 +55,38 @@ export function SignIn() {
             Acesse susa conta
           </Heading>
 
-          <Input 
-            placeholder='E-mail'
-            keyboardType='email-address'
-            autoCapitalize='none' // teclado com letras minúsculas
+          <Controller 
+            control={control}
+            name='email'
+            rules={{required: 'Informe o e-mail'}}
+            render={({field: {onChange}}) => (
+              <Input 
+                placeholder='E-mail'
+                keyboardType='email-address'
+                onChangeText={onChange}
+                errorMessage={errors.email?.message}
+                autoCapitalize='none' // teclado com letras minúsculas
+              />
+            )}
           />
-          <Input
-            placeholder='Senha'
-            secureTextEntry
+
+          <Controller 
+            control={control}
+            name='password'
+            rules={{required: 'Informe a senha'}}
+            render={({field: {onChange}}) => (
+              <Input 
+                secureTextEntry
+                placeholder='Senha'
+                onChangeText={onChange}
+                errorMessage={errors.password?.message}
+              />
+            )}
           />
 
           <Button 
             title='Acessar'
+            onPress={handleSubmit(handleSignIn)}
           />
         </Center>
 
