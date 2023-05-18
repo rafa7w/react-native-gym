@@ -8,6 +8,8 @@ import { AuthContext } from '@contexts/AuthContext'
 export function Routes() {
   const nativeBaseTheme = useTheme()
 
+  const contextData = useContext(AuthContext)
+
   const theme = DefaultTheme
 
   // pode desestruturar colors do useTheme também
