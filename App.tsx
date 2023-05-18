@@ -6,7 +6,7 @@ import { THEME } from './src/theme';
 import { Loading } from '@components/Loading';
 import { Routes } from '@routes/index';
 
-import { AuthContext } from '@contexts/AuthContext';
+import { AuthContextoProvider } from '@contexts/AuthContext';
 
 export default function App() {
   const [fontsLoaded] = useFonts({Roboto_400Regular, Roboto_700Bold})
@@ -18,16 +18,10 @@ export default function App() {
         backgroundColor='transparent'
         translucent
       />
-      <AuthContext.Provider value={{
-        user: {
-          id: '1',
-          name: 'Rodrigo',
-          email: 'rodrigo@email.com',
-          avatar: 'rodrigo.png'
-        }
-      }}>
+      <AuthContextoProvider>
         { fontsLoaded ? <Routes /> : <Loading /> }
-      </AuthContext.Provider>
+      </AuthContextoProvider>
+    
     </NativeBaseProvider>
   );
 }
