@@ -6,6 +6,8 @@ import { Controller, useForm } from 'react-hook-form'
 import * as ImagePicker from 'expo-image-picker'
 import * as FileSystem from 'expo-file-system'
 import { FileInfo } from "expo-file-system";
+import * as yup from 'yup'
+import { yupResolver } from '@hookform/resolvers/yup'
 
 import { useAuth } from '@hooks/useAuth'
 
@@ -24,17 +26,32 @@ type FormDataProps = {
   confirm_password: string;
 }
 
+const profileSchema = yup.object({
+  name: yup.string().required('Informe o nome.'),
+  password: yup.string().min(6, 'A senha deve ter pelo menos 6 dígitos').nullable().transform((value) => !!value ? value : null),
+  confirm_password: yup
+  .string()
+  .nullable()
+  .transform((value) => !!value ? value : null)
+  .oneOf([yup.ref('password'), undefined], 'A confirmação de senha não confere.')
+  .when('password', {
+    is: (Field: any) => Field,
+    then: (schema) => schema.nullable().required('Informe a confirmação da senha.').transform((value) => !!value ? value : null),
+  }),  
+})
+
 export function Profile() {
   const [photoIsLoading, setPhotoIsLoading] = useState(false)
   const [userPhoto, setUserPhoto] = useState('https://github.com/rafa7w.png')
 
   const toast = useToast()
   const { user } = useAuth()
-  const { control } = useForm<FormDataProps>({
+  const { control, handleSubmit, formState: {errors} } = useForm<FormDataProps>({
     defaultValues: {
       name: user.name,
       email: user.email
-    }
+    },
+    resolver: yupResolver(profileSchema)
   })
 
   async function handleUserPhotoSelect() {
@@ -70,6 +87,10 @@ export function Profile() {
     } finally {
       setPhotoIsLoading(false)
     }
+  }
+
+  async function handleProfileUpdate(data: FormDataProps) {
+
   }
 
   return (
@@ -110,6 +131,7 @@ export function Profile() {
                 placeholder='Nome'
                 onChangeText={onChange}
                 value={value}
+                errorMessage={errors.name?.message}
               />
             )}
           />
@@ -134,26 +156,52 @@ export function Profile() {
           <Heading color='gray.200' fontSize='md' mb={2} fontFamily='heading'>
             Alterar senha
           </Heading>
+          
+          <Controller 
+            control={control}
+            name='old_password'
+            render={({field: {onChange}}) => (
+              <Input 
+                bg='gray.600'
+                placeholder='Senha antiga'
+                secureTextEntry
+                onChangeText={onChange}
+              />
+            )}
+          />
 
-          <Input 
-            bg='gray.600'
-            placeholder='Senha antiga'
-            secureTextEntry
+          <Controller 
+            control={control}
+            name='password'
+            render={({field: {onChange}}) => (
+              <Input 
+                bg='gray.600'
+                placeholder='Nova senha'
+                secureTextEntry
+                onChangeText={onChange}
+                errorMessage={errors.password?.message}
+              />
+            )}
           />
-          <Input 
-            bg='gray.600'
-            placeholder='Nova senha'
-            secureTextEntry
-          />
-          <Input 
-            bg='gray.600'
-            placeholder='Confirme nova senha'
-            secureTextEntry
-          />
+
+          <Controller 
+            control={control}
+            name='confirm_password'
+            render={({field: {onChange}}) => (
+              <Input 
+                bg='gray.600'
+                placeholder='Confirme nova senha'
+                secureTextEntry
+                onChangeText={onChange}
+                errorMessage={errors.confirm_password?.message}
+              />
+            )}
+          />                    
 
           <Button 
             title='Atualizar'
             mt={4}
+            onPress={handleSubmit(handleProfileUpdate)}
           />
         </VStack>
       </ScrollView>
